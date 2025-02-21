@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu du Nombre Caché</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            color: #000;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .hidden {
+            display: none;
+        }
+        #startscreen, #gamescreen {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            width: 75%;
+            max-width: 500px;
+            margin: 30px;
+        }
+        button {
+            background-color: #ff5e78;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 12px;
+            padding: 14px 24px;
+            font-size: 18px;
+            margin: 15px 0;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            background-color: #d44d65;
+            transform: scale(1.05);
+        }
+        input {
+            margin: 14px 0;
+            border-radius: 12px;
+            border: 2px solid #ff5e78;
+            width: 100%;
+            font-size: 16px;
+            padding: 12px;
+            max-width: 320px;
+        }
+        p {
+            font-size: 20px;
+        }
+        #resultat {
+            font-size: 22px;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div id="startscreen">
+        <p id="p">Sélectionnez votre niveau de jeu</p>
+        <div>
+            <button onclick="start('facile')">Facile 🍩</button>
+            <button onclick="start('moyen')">Moyen 🎭</button>
+            <button onclick="start('difficile')">Difficile 🔮</button>
+        </div>
+    </div>
+    <div id="gamescreen" class="hidden">
+        <p id="text"></p>
+        <input type="text" id="nombre" placeholder="Entrez un nombre">
+        <button onclick="valider()">Confirmer</button>
+        <p id="resultat"></p>
+        <button id="rejouer" class="hidden" onclick="rejouer()">Nouvelle Partie</button>
+    </div>
+    <script>
+        let nombre;
+        let tentativesRestantes;
+
+        function alea(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function level(niveau) {
+            return niveau === 'facile' ? alea(1, 10) : niveau === 'moyen' ? alea(1, 100) : alea(1, 1000);
+        }
+
+        function tentatives(niveau) {
+            return niveau === 'facile' ? 6 : niveau === 'moyen' ? 8 : 10;
+        }
+
+        function jeu(niveau) {
+            nombre = level(niveau);
+            tentativesRestantes = tentatives(niveau);
+            document.getElementById('text').innerHTML = `Trouvez le nombre entre 1 et ${niveau === 'facile' ? 10 : niveau === 'moyen' ? 100 : 1000}`;
+            document.getElementById('resultat').innerHTML = '';
+            document.getElementById('nombre').value = '';
+            document.getElementById('rejouer').classList.add('hidden');
+        }
+
+        function valider() {
+            let proposition = parseInt(document.getElementById('nombre').value);
+            if (isNaN(proposition)) {
+                document.getElementById('resultat').innerHTML = '⚠️ Veuillez entrer un nombre valide.';
+                return;
+            }
+
+            if (proposition === nombre) {
+                document.getElementById('resultat').innerHTML = '🎊 Félicitations, vous avez trouvé !';
+                document.getElementById('rejouer').classList.remove('hidden');
+            } else {
+                tentativesRestantes--;
+                if (tentativesRestantes > 0) {
+                    document.getElementById('resultat').innerHTML = proposition > nombre 
+                        ? `🔽 Trop élevé ! Il vous reste ${tentativesRestantes} essais.` 
+                        : `🔼 Trop bas ! Il vous reste ${tentativesRestantes} essais.`;
+                } else {
+                    document.getElementById('resultat').innerHTML = `💀 Perdu, le nombre était ${nombre}.`;
+                    document.getElementById('rejouer').classList.remove('hidden');
+                }
+            }
+        }
+
+        function start(niveau) {
+            document.getElementById('startscreen').classList.add('hidden');
+            document.getElementById('gamescreen').classList.remove('hidden');
+            jeu(niveau);
+        }
+
+        function rejouer() {
+            document.getElementById('gamescreen').classList.add('hidden');
+            document.getElementById('startscreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
